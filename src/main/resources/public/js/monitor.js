@@ -8,7 +8,6 @@ $(document).ready(function(){
     window.address = "";
     getCluster(window.clusterId , function(obj){
         window.address = obj.res.address;
-        console.log(window.address);
         init();
     })
     $(".start-time").flatpickr();
@@ -109,8 +108,7 @@ $("#info").on("click", function(){
     var host = window.host;
     if(host != "all" && host != "" && host != null){
         smarty.fopen( "/cluster/getNodeInfo?address="+ host, "cluster/info_format", true, { title: "Info", area: '800px', type: 1, closeBtn: 1, anim: 2, shadeClose: true},  function(obj){
-            console.log(obj)
-        } );
+        });
     } else {
         layer.msg("Please select one node");
     }
@@ -121,8 +119,7 @@ $("#config").on("click", function(){
     var host = window.host;
     if(host != "all" && host != "" && host != null){
         smarty.fopen( "/cluster/getRedisConfig?address="+ host, "cluster/config_format", true, { title: "Config", area: '800px', type: 1, closeBtn: 1, anim: 2, shadeClose: true},  function(obj){
-            console.log(obj)
-        } );
+        });
     } else {
         layer.msg("Please select one node");
     }
@@ -207,9 +204,9 @@ function init(){
         buildChart("charts-cpu","CPU占用率","date","usedCpuUser",obj.res,"CPU usage"," %/s");
         buildChart("charts-memory","内存占用","date","usedMemory",obj.res,"memory usage", storageUnit);
         buildChart("charts-client","客户端连接数","date","connectedClients",obj.res,"client connections"," ");
-        buildChart("charts-ops","每秒执行指令数 ","date","instantaneousOpsPerSec",obj.res,"command  /sec"," ");
-        buildChart("charts-commands","每秒实际命令数","date","totalCommandsProcessed",obj.res,"command  /sec  "," ");
-        buildChart("charts-expireKeys","过期键值量（时间段）","date","expiresRecently",obj.res,"expires_recently_total"," ");
+        buildChart("charts-ops","每秒指令数(instantaneous_ops_per_sec )","date","instantaneousOpsPerSec",obj.res,"command  /sec"," ");
+        buildChart("charts-commands","每秒命令数(total_commands_processed)","date","totalCommandsProcessed",obj.res,"command  /sec  "," ");
+        buildChart("charts-Keyspace-expires","有TTL的key总数","date","expires",obj.res,"keys with ttl"," ");
         buildChart("charts-hitRate","命中率","date","keyspaceHitRate",obj.res,"hitRate_avg"," ");
     });
 
@@ -271,7 +268,6 @@ function refactor(originData,timeUnit,storageUnit){
         thisRecord.usedCpuUser = (thisRecord.usedCpuUser - fontRecord.usedCpuUser).toFixed(2);
         thisRecord.usedCpuSysChildren = (thisRecord.usedCpuSysChildren - fontRecord.usedCpuSysChildren).toFixed(2);
         thisRecord.usedCpuUserChildren = (thisRecord.usedCpuUserChildren - fontRecord.usedCpuUserChildren).toFixed(2);
-        thisRecord.expiresRecently = (thisRecord.expires - fontRecord.expires).toFixed(2);
 
         // 时间单位换算 获得有用的 统计值
         if(timeUnit == 'minute'){
@@ -377,7 +373,7 @@ function buildChart(webElementId,titleText,xAxisFieldName,yAxisFieldName,chartDa
         },
         grid:{
             bottom: 40,
-            left: 40,
+            left: 80,
             top: 60,
         },
         legend:{

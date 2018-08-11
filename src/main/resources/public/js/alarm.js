@@ -1,6 +1,7 @@
 $(function(){
     window.clusterId = getQueryString("clusterId");
     getCluster(window.clusterId, function(obj){
+        window.cluster = obj.res;
         $("#cluster-name").text( obj.res.clusterName );
     });
 
@@ -36,7 +37,6 @@ $(document).on("click","#addAlarmRule",function(){
              var rule = sparrow_form.encode( "alarm-rule-form",2 );
              if ( !sparrow.empty( rule )  ){
                  rule.clusterId = window.clusterId;
-                 console.log(rule);
                  addRule(rule,function(obj){
                       if( obj.code <= 0 ){
                          layer.closeAll();
@@ -60,4 +60,15 @@ $(document).on("click",".btn-history-delete",function(){
     deleteCaseLog(id,function(){
         reBuildCaseHistory();
     });
+});
+
+$(document).on("click","#deleteAllHistory",function(){
+
+  var id = window.cluster.id;
+  var r = confirm("Are You Sure Delete All Logs ?");
+  if (r==true){
+     deleteAllLog(id,function(){
+            reBuildCaseHistory();
+       });
+  }
 });

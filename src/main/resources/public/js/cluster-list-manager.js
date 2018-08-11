@@ -1,5 +1,4 @@
-smarty.get( "/cluster/listCluster", "cluster/cluster_list_content", "cluster-list-content", function(){
-       /* console.log("get...");*/
+smarty.get( "/cluster/listClusterByUser", "cluster/cluster_list_content", "cluster-list-content", function(){
 }, true );
 
 smarty.register_function( 'cluster_state', function( params ){
@@ -16,22 +15,6 @@ smarty.register_function( 'cluster_state', function( params ){
 
     });
 });
-
-$(document).on("click", "#add-cluster", function(){
-    smarty.open( "cluster/add_cluster_model", {}, { title: "Add New Cluster", width:400, height:345},function(){
-
-    });
-});
-$(document).on("click", "#save-cluster", function(){
-    var cluster = sparrow_form.encode("add-cluster-form", 0);
-    if ( sparrow.empty( cluster ) ){
-        return false;
-    }
-    addCluster(cluster, function(obj){
-        location.reload();
-    });
-});
-
 
 
 $("#clusterName, #address, #userName, #password").on("blur", function(){
@@ -110,55 +93,4 @@ $("#save").on("click", function(){
     // TODO:ajax request 成功或失败
 })
 
-
-/*delete redis cluster*/
-$("body").delegate(".delete-container","click", function(){
-    var deleteObj = $(this).parent().parent();
-    var clusterId = $(this).attr("data-cluster-id");
-    var clusterName = deleteObj.attr("data");
-    bootbox.prompt({
-        title: "Please enter the cluster name what you will delete\n["+clusterName+"]",
-        buttons: {
-            confirm: {
-                label: 'Delete',
-                className: 'btn-danger'
-           },
-            cancel: {
-                label: 'Cancel'
-            }
-        },
-        callback: function (result){
-
-            console.log("clusterId" + clusterId)
-            if(result != null && result != "") {
-                if(result == clusterName) {
-                    //TODO: ajax request
-                    $.ajax({
-                        type: "POST",
-                        url: "/cluster/removeCluster?clusterId="+clusterId,
-                        dataType: "json",
-                        contentType : "application/json; charset=utf-8",
-                        success: function(result){
-                            console.log(result);
-                            var code = parseInt(result.code);
-                            if(code == 0) {
-                                 deleteObj.remove();
-                                 layer.msg("delete " + clusterName + " successfully")
-                                 /*setTimeout("location.reload()", 1000);*/
-                            } else {
-                                layer.msg("delete " + clusterName + " failed")
-                            }
-                        },
-                        error: function(error){
-                            alert("error");
-                            console.log(error);
-                        }
-                    })
-                } else {
-                    layer.msg("cluster name wrong")
-                }
-            }
-        }
-    })
-});
 

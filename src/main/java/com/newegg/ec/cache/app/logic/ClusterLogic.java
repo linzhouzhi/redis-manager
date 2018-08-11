@@ -6,6 +6,7 @@ import com.newegg.ec.cache.app.model.*;
 import com.newegg.ec.cache.app.dao.impl.NodeInfoDao;
 import com.newegg.ec.cache.app.util.*;
 import com.newegg.ec.cache.core.logger.CommonLogger;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,9 +41,16 @@ public class ClusterLogic {
         return redisManager.query( redisQueryParam );
     }
 
-    public List<Cluster> getClusterList(String group){
-        System.out.println( group + "--------------");
-        return clusterDao.getClusterList( group );
+    public Map<String, List<Cluster>> getClusterMap(String group){
+        Map<String, List<Cluster>> clusterMap = new HashedMap();
+        if( group.equals( Common.ADMIN_GROUP ) ){
+            List<String> groups = clusterDao.getClusterGroups();
+            for(String groupStr : groups){
+                clusterMap.put( groupStr, clusterDao.getClusterList(groupStr) );
+            }
+        }
+        clusterMap.put( group, clusterDao.getClusterList(group) );
+        return clusterMap;
     }
 
     public boolean clusterExistAddress(String address){
@@ -169,13 +177,28 @@ public class ClusterLogic {
     }
 
     public List<Cluster> getClusterListByUser(User user) {
-        String addressStr = user.getUserGroup();
-        String[] addressArr = addressStr.split(",");
         List<Cluster> listCluster = new ArrayList<>();
-        for(String adddress : addressArr ){
-            listCluster.addAll( getClusterList( adddress ) );
-        }
+        listCluster = getClusterList(user.getUserGroup());
         return listCluster;
+    }
+
+    public List<Cluster> getClusterList(String group){
+        List<Cluster> clusterList = new ArrayList<>();
+        if( group.equals( Common.ADMIN_GROUP ) ){
+            List<String> groups = clusterDao.getClusterGroups();
+            for(String groupStr : groups){
+                clusterList.addAll( clusterDao.getClusterList(groupStr) );
+            }
+        }else{
+            clusterList.addAll( clusterDao.getClusterList( group ) );
+        }
+        return clusterList;
+    }
+
+    public List<Cluster> getClusterListByGroup(String group){
+        List<Cluster> clusterList = new ArrayList<>();
+        clusterList.addAll( clusterDao.getClusterList( group ) );
+        return clusterList;
     }
 
     public boolean beSlave(String ip, int port, String masterId) {
@@ -287,7 +310,9 @@ public class ClusterLogic {
         String temMyselfId = "";
         String temSourceId = "";
         Map<String,Map> masterNodes =  JedisUtil.getMasterNodes(ip, port);
+        Jedis jedis = null;
         try {
+            jedis = new Jedis(ip, port);
             // 迁移必须要知道自己的 nodeid 和 source 的ip port nodeid
             for(int slot = startKey; slot <= endKey; slot++){
                 Map<String, String> slotObjmap = fillMoveSlotObject(masterNodes, ip, port, slot );
@@ -295,6 +320,14 @@ public class ClusterLogic {
                 String sourceId = slotObjmap.get("sourceId");
                 String sourceIP = slotObjmap.get("sourceIP");
                 String strSourcePort = slotObjmap.get("sourcePort");
+                // 如果 strSourcePort 为空，则进行集群初始化
+                if( StringUtils.isBlank( strSourcePort ) ){
+                    String resstr = jedis.clusterAddSlots( slot );
+                    if( !resstr.equals("OK") ){
+                        jedis.clusterAddSlots( slot );
+                    }
+                    continue;
+                }
                 int  sourcePort = Integer.parseInt(strSourcePort);
                 try {
                     moveSlot(myselfId, ip, port, sourceId, sourceIP, sourcePort, slot);
@@ -305,6 +338,8 @@ public class ClusterLogic {
             res = true;
         }catch (Exception e){
             logger.error("move slot ", e);
+        }finally {
+            jedis.close();
         }
         return res;
     }
@@ -370,7 +405,7 @@ public class ClusterLogic {
             if( slotInMaster(master, slot ) ){
                 sourceId = (String) master.get("nodeId");
                 sourceIP = (String) master.get("ip");
-                sourcePort = (String) master.get("port");
+                sourcePort = String.valueOf(master.get("port"));
             }
             if( !"".equals(myselfId) && !"".equals(sourceIP) && "".equals(sourcePort) && !"".equals(sourceId) ){
                 break;

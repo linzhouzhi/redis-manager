@@ -7,14 +7,10 @@ $(document).ready(function(){
 
 function init_install_ui(clusterId){
     getImageList(window.pluginType, function(obj){
-        console.log( obj );
-        var userGroup = window.user.userGroup || "";
-        var groupList = [];
-        if( userGroup != "" ){
-            groupList = userGroup.split(",");
-        }
-        obj.groups = groupList;
-        createClusterStep( obj, clusterId );
+        listGroup(function(data){
+            obj.groups = data.res;
+            createClusterStep( obj, clusterId );
+        });
     });
 }
 
@@ -29,7 +25,6 @@ $(document).on("click", "#start-install-cluster", function(obj){
             "pluginType": window.pluginType,
             "req": installParam
         }
-        console.log( param );
         nodePullImage( param, function(obj){
             if( obj.code ==  0 ){
                 nodeInstall( param, function(obj){
@@ -38,7 +33,7 @@ $(document).on("click", "#start-install-cluster", function(obj){
                             sparrow_win.msg("success install");
                         }else{
                             sparrow_win.confirm("success, skip to cluster manager?", function(){
-                                window.location.href = "/cluster/clusterListManager";
+                                window.location.href = "/";
                             });
                         }
                     }else{
@@ -62,7 +57,6 @@ function  createClusterStep( data, clusterId){
                 console.log( cluster );
             });
             getNodeByClusterId(window.pluginType, clusterId, function(obj){
-                console.log( obj );
                 var node = obj.res;
                 $("[name='image']").selectpicker("val", node.image);
                 $("[name='image']").attr("disabled","disabled");

@@ -3,10 +3,8 @@
 [![Build Status](https://travis-ci.org/ngbdf/redis-manager.svg?branch=master)](https://travis-ci.org/ngbdf/redis-manager)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-RedisManager 是  redis 一站式管理平台。 支持集群的创建、管理、监控。
-集群的创建包含了三种方式 docker、machine、humpback；
-集群的管理支持 slot迁移、master slave 角色的选举、动态配置的修改；
-监控部分有 redis info、 slow log 等。
+RedisManager 是  redis 一站式管理平台。 支持集群的创建、管理、监控。      
+集群的创建包含了三种方式 docker、machine、humpback;集群的管理支持 slot迁移、master slave 角色的选举、动态配置的修改;监控部分有 redis info、 slow log;集群之间数据同步;以及可以查询任意类型的query接口。
 
 [快速开始](https://github.com/ngbdf/redis-manager/wiki/)     
 
@@ -19,31 +17,40 @@ RedisManager 是  redis 一站式管理平台。 支持集群的创建、管理�
  <img src="./docs/images/wechat.png" width="200px"/>
 
 ## 产品截图
-> 截图部分包含了 创建模块、管理模块、以及监控模块、详情如下:
-### 1 创建集群
-> 创建集群包含了三种选择、您可以选择机器安装也可以选择 docker 或 humpback
-<img src="./docs/images/create.png"/>
+> 截图部分包含了 创建模块、管理模块、监控模块、集群同步、query客户端的使用，详情如下:            
+<img src="./docs/images/introduction/index.png"/>      
+
+### 1 创建集群      
+> 创建集群包含了三种选择、您可以选择机器安装也可以选择 docker 或 humpback            
+<img src="./docs/images/introduction/cluster-create.png"/>
 
 ### 2 管理集群
 > 管理集群分为 ClusterManager、NodeManager 两部分
 
 #### 2.1 ClusterManager
 > 集群管理主要包好了 slot 迁移、master slave 角色切换、动态配置
-<img src="./docs/images/cluster-manager.png"/>
+<img src="./docs/images/introduction/cluster-manage.png"/>
+<img src="./docs/images/introduction/cluster-manage2.png"/>
 
 #### 2.2 NodeManager
 > 节点管理主要包含了节点的启动关闭重启扩容等
-<img src="./docs/images/node-manager.png"/>
+<img src="./docs/images/introduction/node-manage.png"/>
 
 ### 3 redis监控
-> 监控包含了 redis info 和 slow log 两个部分的内容
+> 监控包含了 redis detail 和 cluster alarm 两个部分的内容
 
-### 3.1 监控列表
-<img src="./docs/images/monitor-list.png"/>
+<img src="./docs/images/introduction/cluster-monitor.png"/>
 
-### 3.2 具体监控详情
-<img src="./docs/images/monitor-detail.png"/>
+### 3.1 具体监控详情
+<img src="./docs/images/introduction/cluster-monitor-detail.png"/>
 
+### 3.2 集群报警功能
+<img src="./docs/images/introduction/cluster-monitor-alarm.png"/>
+
+### 4 Query客户端
+> 支持任意类型的 key 查询，包含 scan功能
+<img src="./docs/images/introduction/cluster-monitor-query.png"/>
+	
 ## 用户手册
 > 用户手册主要介绍如何使用 redisManager
 

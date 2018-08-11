@@ -24,4 +24,10 @@ public class UserDaoTest {
         List<User> list = userDao.getUserList();
         System.out.println( list );
     }
+
+    @Test
+    public void addUser(){
+        User user = new User("admin", "admin", "admin");
+        userDao.addUser( user );
+    }
 }
